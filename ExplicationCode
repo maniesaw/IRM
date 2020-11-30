@@ -5,5 +5,13 @@ Il s'agit de tester des transformations qui permettent de passer d'une image à 
 
 # Chargement des images sous Matlab
 Nous disposons de fichier .nii. Il faut les ouvrir de manière spéciale sous Matlab.
+On recupere ainsi l'image 3D en images sous formes de couches. Il y en a 15 coupes données.
+Utiliser un viewer3D? 
 
+Note de l'enseignant:
+- Partie 1,2,3
+- Partie 4 utiliser des fonctions deja fait, voir si cela marche mieux?
+- Faire dans l'ordre de preference
 
+Partie 3: L'utilisateur peut le faire par click. Page 2 du TP (ventricule: partie blanc au niveau du cerveau)
+=> ancre sur les bords du cerveau et au niveau des ventricules
