@@ -1,0 +1,9 @@
+# Explication du fonctionnement 
+
+# Principe generale
+Il s'agit de tester des transformations qui permettent de passer d'une image à l'autre.
+
+# Chargement des images sous Matlab
+Nous disposons de fichier .nii. Il faut les ouvrir de manière spéciale sous Matlab.
+
+
