@@ -3,46 +3,30 @@ clear;
 clc;
 
 %%
+
 Im_diff = niftiread("../project2_registration/data/patient1/DIFFUSION.nii");
 Im_flair = niftiread("../project2_registration/data/patient1/FLAIR.nii");
-subplot(1, 2, 1);imshow(Im_diff(:,:,8), []);
-subplot(1, 2, 2);imshow(Im_flair(:,:,8), []);
-
-[Image_diff_Clean,Image_Flair_Clean, mask_diff, mask_flair]=preprocess(Im_diff(:,:,8), Im_flair(:,:,8));
-
-[Image_diff_Clean, mask_diff] = filter_IRM(Im_diff(:,:,8), "diff");
+subplot(1, 2, 1);imshow(Im_diff(:,:,8), []);title("Image of type Diff");
+subplot(1, 2, 2);imshow(Im_flair(:,:,8), []);title("Image of type Flair");
 
 [Im1,Im2]=rescaleIm(Im_diff(:,:,8), Im_flair(:,:,8));
 
+[Image_diff_Clean, Image_Flair_Clean, mask_diff, mask_flair]=preprocess(Im_diff(:,:,8), Im_flair(:,:,8));
 
-% rescaleIm
-function [Im1r, Im2r] = rescaleIm(Im1, Im2)
-    
-    % on récupère pour les deux images 3D seulement la slice du milieu
-    [m1,n1,p1] = size(Im1);
-    slice1 = floor(p1/2);
-    Im1r = uint8(255 * mat2gray(Im1(:,:,slice1)));
-    
-    
-    [m2,n2,p2] = size(Im2);
-    slice2 = floor(p2/2);
-    Im2r = uint8(255 * mat2gray(Im2(:,:,slice2)));
-    
-    % on rescale limage la plus grande de la taille de la plus petite
-    if size(Im1r) > size(Im2r)
-        Im1r = imresize(Im1r, size(Im2r));
-    elseif size(Im2r) > size(Im1r)
-        Im2r = imresize(Im2r, size(Im1r));
-    end
-    
-end
- 
+subplot(2, 3, 1); imshow(Im_diff(:,:,8), []);title("Image of type Diff");
+subplot(2, 3, 2);imshow(mask_diff, []);title("Mask Diff");
+subplot(2, 3, 3);imshow(Image_diff_Clean, []);title("Image Diff Clean");
+
+subplot(2, 3, 4);imshow(Im_flair(:,:,8), []);title("Image of type Flair");
+subplot(2, 3, 5);imshow(mask_flair, []);title("Mask Flair");
+subplot(2, 3, 6);imshow(Image_Flair_Clean, []);title("Image Flair Clean");
+
+%%
 function [Image_diff_Clean,Image_Flair_Clean, mask_diff, mask_flair]=preprocess(Image_diff, Image_flair)
     [I_diff_r, I_flair_r] = rescaleIm(Image_diff, Image_flair);
     [Image_diff_Clean, mask_diff] = filter_IRM(I_diff_r, "diff");
-    [Image_Flair_Clean,mask_flair] = filter_IRM(I_flair_r, "flair");
+    [Image_Flair_Clean, mask_flair] = filter_IRM(I_flair_r, "flair");
 end
-
 
 function [image_masked, maskImageClean] = filter_IRM(image, nature)
     grayImage = double(image);
@@ -80,4 +64,15 @@ function [image_masked, maskImageClean] = filter_IRM(image, nature)
     image_masked = grayImage;
     image_masked(maskImageClean==0) = 0;
 end
-%%
+
+function [Im1r, Im2r] = rescaleIm(Im1, Im2)
+    Im1r = Im1;
+    Im2r = Im2;
+    % on rescale limage la plus grande de la taille de la plus petite
+    if size(Im1r) > size(Im2r)
+        Im1r = imresize(Im1r, size(Im2r));
+    elseif size(Im2r) > size(Im1r)
+        Im2r = imresize(Im2r, size(Im1r));
+    end
+    
+end
