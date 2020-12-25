@@ -157,6 +157,10 @@ subplot(1,3,2);imshow(maskImage, []);
 subplot(1,3,3);imshow(I_p1_flair_r_masked);
 
 
+
+
+
+
 %% 2. Rigid registration
 
 % Image Flair correspond à l'image fixe, on va faire bouger l'image de diffusion
@@ -172,9 +176,42 @@ subplot(2,2,3);imshow(I_p1_diff_gray(:,:,8), []);
 subplot(2,2,4);imshow(I_p1_flair_gray(:,:,8), []);
 
 %%
-double(I_p1_diff(:,:,8)) - double(I_p1_diff_gray(:,:,8))
+%imshow(I_p1_diff(:,:,8), []);
+%imshow(mat2gray(I_p1_diff(:,:,8)));
 
-imhist(I_p1_diff(:,:,8));
+subplot(1,3,1);imshow(I_p1_diff(:,:,8), []);
+subplot(1,3,2);imshow(I_p1_diff_gray(:,:,8), []);
+subplot(1,3,3);imshow(round(mat2gray(I_p1_diff(:,:,8))*256), []);
+
+%%
+I_p1_diff_gray = round(mat2gray(I_p1_diff(:,:,8))*256);
+I_p1_flair_gray = round(mat2gray(I_p1_flair(:,:,8))*256);
+
+
+%% 2.2.1 Trouver le barycentre des images
+% On va en fait chercher le barycentre du masque pour ne pas donner plus de
+% poids à des pixels de fortes intensités
+
+%% 
+s_diff = regionprops(maskImageClean, 'centroid');
+centroids_diff = cat(1, s_diff.Centroid);
+imshow(maskImageClean, [])
+hold on
+plot(centroids_diff(:,1), centroids_diff(:,2), 'b*')
+hold off
+
+%%
+
+diff_clean = imread("../project2_registration/data/cleaned_images/DIFFUSION_p1_s8.png");
+imshow(diff_clean);
+
+
+
+
+
+
+
+
 
 
 
@@ -204,13 +241,7 @@ function [Im1r, Im2r] = rescaleIm(Im1, Im2)
     
 end
 
-
-%% TODO : remove_skull_diff function
-
-
-%% TODO : remove_skull_flair function
-
-
+%%
 
 
 
