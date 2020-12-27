@@ -40,13 +40,13 @@ Image_diff_clean_gray = grayscaleIm(Image_diff_clean);
 Image_flair_clean_gray = grayscaleIm(Image_flair_clean);
 
 %% 2.2 Then, we find the barycenters of both images to calculate the initial
-% translations. To do this, we use the masks to give the same weight to all
-% the non zeros pixels.
+%translations. To do this, we use the masks to give the same weight to all
+%the non zeros pixels.
 [x_centroid_diff, y_centroid_diff] = findCentroid(mask_diff);
 [x_centroid_flair, y_centroid_flair] = findCentroid(mask_flair);
 
-% The FLAIR image is the fixed image, and the Diffusion MRI is the moving
-% image to be registered.
+%The FLAIR image is the fixed image, and the Diffusion MRI is the moving
+%image to be registered.
 tx0 = x_centroid_flair - x_centroid_diff;
 ty0 = y_centroid_flair - y_centroid_diff;
 
@@ -78,15 +78,14 @@ saveas(gcf, "../output/centroids.png");
 % the pi value that give the best trasnlation parameters
 
 pi_opt=[0 0 0];
-s = ssim(Image_diff_clean_gray, Image_flair_clean_gray );
+s = simcrit(Image_diff_clean_gray, Image_flair_clean_gray );
 
 for tx=tmin:tstep:tmax
     for ty=tmin:tstep:tmax
         for r=rmin:rstep:rmax
             ID_temp=imtranslate(Image_diff_clean_gray,[tx,ty]);
             ID_temp=imrotate(Image_diff_clean_gray,r,'crop');
-            ssimval=0;
-            ssimval = ssim(ID_temp, Image_flair_clean_gray); 
+            ssimval=simcrit(ID_temp,Image_flair_clean_gray);
             if ssimval<s
                 s=ssimval;
                 p_opt=[tx ty r];
@@ -97,16 +96,9 @@ end
 
 %% 2.6 Comments of  results
 
-%% Testing code
+%% Test rigid_registration function
+%[simcrit, tx_opt, ty_opt, r_opt] = rigid_registration(Image_diff_clean,Image_flair_clean, mask_diff, mask_flair);
 
-% Try to calculate the similarity criterion
-[w,h] = size(Image_diff_clean_gray)
-ssim = 0;
-for i = 1:h
-    for j = 1:w
-        ssim = ssim + (Image_flair_clean_gray(i,j) - Image_diff_clean_gray(i,j))^2;
-    end
-end
 %% 3 - Point set registration
 
 %%
@@ -127,17 +119,18 @@ tmax=10;
 tstep=2;
 rmin=-1;
 rmax=1;
-rtep=0.2;
+rstep=0.2;
 s=0;
+L = 3;
 for i=1:L
    s=s+(ID(round(pts_diff(1,i)),round(pts_diff(1,i)))-IF(round(pts_flair(1,i)),round(pts_flair(1,i))))^2; 
 end
 p_opt=[0 0 0];
 for tx=tmin:tstep:tmax
     for ty=tmin:tstep:tmax
-        for r=rmin:rstep:smax
+        for r=rmin:rstep:rmax
             ID_temp=imtranslate(ID,[tx,ty]);
-            ID_temp=imrotate(ID,r);
+            ID_temp=imrotate(ID,r, 'crop');
             stemp=0;
             for i=1:L
                stemp=stemp+(ID_temp(round(pts_diff(1,i)),round(pts_diff(1,i)))-IF(round(pts_flair(1,i)),round(pts_flair(1,i))))^2; 
@@ -149,87 +142,4 @@ for tx=tmin:tstep:tmax
         end
     end
 end
-
-
 %%
-function [Image_diff_Clean,Image_Flair_Clean, mask_diff, mask_flair]=preprocess(Image_diff, Image_flair)
-    [I_diff_r, I_flair_r] = rescaleIm(Image_diff, Image_flair);
-    [Image_diff_Clean, mask_diff] = filter_IRM(I_diff_r, "diff");
-    [Image_Flair_Clean, mask_flair] = filter_IRM(I_flair_r, "flair");
-end
-
-function [image_masked, maskImageClean] = filter_IRM(image, nature)
-    grayImage = double(image);
-    if nature=="diff"
-        numberOfClasses = 3;
-    elseif nature=="flair"
-        numberOfClasses = 2;
-    end
-    
-    % Création du masque (filtre)   
-    clusters = kmeans(grayImage(:), numberOfClasses);
-    
-    [nb_pixels,index] = groupcounts(clusters);
-    [min_nb_pixels,index_min] = min(nb_pixels);
-    [max_nb_pixels,index_max] = max(nb_pixels);
-
-    if nature=="diff"
-        clusters(clusters == index_min) = 0;
-    end
-    
-    clusters(clusters == index_max) = 0;
-    clusters(clusters ~= 0) = 1;
-    
-    maskImage = reshape(clusters, size(grayImage));
-    
-    %Nettoyage du masque
-    CC = bwlabel(maskImage);
-    [nb_pix_CC, index_CC] = groupcounts(reshape(CC, [224*224 1]));
-    [nb_pix_max, index_max] = max(nb_pix_CC(nb_pix_CC ~= max(nb_pix_CC)));
-    
-    maskImageClean = zeros(size(maskImage));
-    maskImageClean(CC == index_max) = 1;
-
-    %Filtrage de l image
-    image_masked = grayImage;
-    image_masked(maskImageClean==0) = 0;
-end
-
-function [Im1r, Im2r] = rescaleIm(Im1, Im2)
-    Im1r = Im1;
-    Im2r = Im2;
-    % on rescale limage la plus grande de la taille de la plus petite
-    if size(Im1r) > size(Im2r)
-        Im1r = imresize(Im1r, size(Im2r));
-    elseif size(Im2r) > size(Im1r)
-        Im2r = imresize(Im2r, size(Im1r));
-    end
-    
-end
-
-function grayIm = grayscaleIm(cleanedIm)
-    grayIm = round(mat2gray(cleanedIm)*256);
-end
-
-function [tmin, tmax, tstep, rmin, rmax, rstep] = askUser()
-    disp(['Enter the values of lower/upper bounds and steps for translation and rotation']);
-
-    prompt = 'tmin :';
-    tmin = input(prompt);
-
-    prompt = 'tmax :';
-    tmax = input(prompt);
-
-    prompt = 'tstep :';
-    tstep = input(prompt);
-
-    prompt = 'rmin :';
-    rmin = input(prompt);
-
-    prompt = 'rmax :';
-    rmax = input(prompt);
-
-    prompt = 'rstep :';
-    rstep = input(prompt);
-
-end

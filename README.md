@@ -26,4 +26,11 @@ Rigid registration
 
 1) First, we grayscale the images: The range of the cleaned images is **not between 0 and 256** so we have to **rescale** them
 2) Then, we find the barycenters of the two image to calculate the initial **translations** (a **tx** translation on the x axis and a **ty** translation on the y axis)
-3) Then, we propose to the user to choose the lower/upper bounds and steps for the applied transformations. 
+3) Then, we propose to the user to choose the **lower/upper bounds** and **steps** for the applied transformations with `askUserValue()`
+4) Finally, we implement the different transformations to apply to the moving image for each set of parameters and store the pi set that give the **best translation and rotation parameters**, evaluate by computing the **similarity criterion** via the function `simcrit()`
+
+All of the rigid resgistration steps can be performed by calling the function `rigid_registration()` in the `rigid_registration.m` file.
+
+Point registration
+------------------
+
