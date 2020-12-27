@@ -23,10 +23,10 @@ figure('position', [100, 100, 600, 400]);
 subplot(2, 3, 1);imshow(Im_diff(:,:,8), []);title("Image of type Diff");
 subplot(2, 3, 2);imshow(mask_diff, []);title("Mask Diff");
 subplot(2, 3, 3);imshow(Image_diff_clean, []);title("Image Diff Clean");
-
 subplot(2, 3, 4);imshow(Im_flair(:,:,8), []);title("Image of type Flair");
 subplot(2, 3, 5);imshow(mask_flair, []);title("Mask Flair");
 subplot(2, 3, 6);imshow(Image_flair_clean, []);title("Image Flair Clean");
+
 
 saveas(gcf, "../output/cleaned_images.png");
 
@@ -74,11 +74,81 @@ saveas(gcf, "../output/centroids.png");
 % We ask the 6 values to the user
 [tmin, tmax, tstep, rmin, rmax, rstep] = askUserValue();
 
+%% 2.4 & 2.5 Implement the different transformations to apply to the moving image and store
+% the pi value that give the best trasnlation parameters
 
+pi_opt=[0 0 0];
+s = ssim(Image_diff_clean_gray, Image_flair_clean_gray );
 
+for tx=tmin:tstep:tmax
+    for ty=tmin:tstep:tmax
+        for r=rmin:rstep:rmax
+            ID_temp=imtranslate(Image_diff_clean_gray,[tx,ty]);
+            ID_temp=imrotate(Image_diff_clean_gray,r,'crop');
+            ssimval=0;
+            ssimval = ssim(ID_temp, Image_flair_clean_gray); 
+            if ssimval<s
+                s=ssimval;
+                p_opt=[tx ty r];
+            end
+        end
+    end
+end
 
+%% 2.6 Comments of  results
 
+%% Testing code
 
+% Try to calculate the similarity criterion
+[w,h] = size(Image_diff_clean_gray)
+ssim = 0;
+for i = 1:h
+    for j = 1:w
+        ssim = ssim + (Image_flair_clean_gray(i,j) - Image_diff_clean_gray(i,j))^2;
+    end
+end
+%% 3 - Point set registration
+
+%%
+clear;
+clc;
+%%
+
+Im_diff = niftiread("DIFFUSION.nii");
+Im_flair = niftiread("FLAIR.nii");
+
+%% 
+[ID, IF, mask_diff, mask_flair]=preprocess(Im_diff(:,:,8), Im_flair(:,:,8));
+[pts_diff, pts_flair]=readPoints(ID,IF,3);
+
+%%
+tmin=-10;
+tmax=10;
+tstep=2;
+rmin=-1;
+rmax=1;
+rtep=0.2;
+s=0;
+for i=1:L
+   s=s+(ID(round(pts_diff(1,i)),round(pts_diff(1,i)))-IF(round(pts_flair(1,i)),round(pts_flair(1,i))))^2; 
+end
+p_opt=[0 0 0];
+for tx=tmin:tstep:tmax
+    for ty=tmin:tstep:tmax
+        for r=rmin:rstep:smax
+            ID_temp=imtranslate(ID,[tx,ty]);
+            ID_temp=imrotate(ID,r);
+            stemp=0;
+            for i=1:L
+               stemp=stemp+(ID_temp(round(pts_diff(1,i)),round(pts_diff(1,i)))-IF(round(pts_flair(1,i)),round(pts_flair(1,i))))^2; 
+            end
+            if stemp<s
+                s=stemp;
+                p_opt=[tx ty r];
+            end
+        end
+    end
+end
 
 
 %%

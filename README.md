@@ -23,3 +23,7 @@ All pre-processing objectives are carried out thanks to the file `preprocessing.
 
 Rigid registration
 ------------------
+
+1) First, we grayscale the images: The range of the cleaned images is **not between 0 and 256** so we have to **rescale** them
+2) Then, we find the barycenters of the two image to calculate the initial **translations** (a **tx** translation on the x axis and a **ty** translation on the y axis)
+3) Then, we propose to the user to choose the lower/upper bounds and steps for the applied transformations. 
