@@ -1,4 +1,4 @@
-function [s, tx_opt, ty_opt, r_opt] = rigid_registration(Image_diff_clean,Image_flair_clean, mask_diff, mask_flair)
+function [s, tx_opt, ty_opt, r_opt, Image_diff_opt] = rigid_registration(Image_diff_clean,Image_flair_clean, mask_diff, mask_flair)
 %2.1 First, we grayscale the images
 % The range of the cleaned images is not between 0 and 256 so we have to
 % rescale them
@@ -49,7 +49,7 @@ for tx=tmin:tstep:tmax
     for ty=tmin:tstep:tmax
         for r=rmin:rstep:rmax
             ID_temp=imtranslate(Image_diff_clean_gray,[tx,ty]);
-            ID_temp=imrotate(Image_diff_clean_gray,r,'crop');
+            ID_temp=imrotate(ID_temp,r,'crop');
             ssimval=simcrit(ID_temp,Image_flair_clean_gray);
             if ssimval<s
                 s=ssimval;
@@ -61,6 +61,9 @@ for tx=tmin:tstep:tmax
         end
     end
 end
+
+Image_diff_opt = imtranslate(Image_diff_clean_gray,[tx_opt,ty_opt]);
+Image_diff_opt = imrotate(Image_diff_opt,r_opt,'crop');
 
 end
 
