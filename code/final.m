@@ -75,16 +75,16 @@ saveas(gcf, "../output/centroids.png");
 [tmin, tmax, tstep, rmin, rmax, rstep] = askUserValue();
 
 %% 2.4 & 2.5 Implement the different transformations to apply to the moving image and store
-% the pi value that give the best trasnlation parameters
+% the pi value that give the best translation parameters
 
-pi_opt=[0 0 0];
-s = simcrit(Image_diff_clean_gray, Image_flair_clean_gray );
+%pi_opt=[0 0 0];
+s = simcrit(Image_diff_clean_gray, Image_flair_clean_gray);
 
 for tx=tmin:tstep:tmax
     for ty=tmin:tstep:tmax
         for r=rmin:rstep:rmax
             ID_temp=imtranslate(Image_diff_clean_gray,[tx,ty]);
-            ID_temp=imrotate(Image_diff_clean_gray,r,'crop');
+            ID_temp=imrotate(ID_temp,r,'crop');
             ssimval=simcrit(ID_temp,Image_flair_clean_gray);
             if ssimval<s
                 s=ssimval;
@@ -97,7 +97,18 @@ end
 %% 2.6 Comments of  results
 
 %% Test rigid_registration function
-%[simcrit, tx_opt, ty_opt, r_opt] = rigid_registration(Image_diff_clean,Image_flair_clean, mask_diff, mask_flair);
+[simcrit, tx_opt, ty_opt, r_opt, Image_diff_opt] = rigid_registration(Image_diff_clean,Image_flair_clean, mask_diff, mask_flair);
+
+disp(['The optimal x translation is : ', num2str(tx_opt)]);
+disp(['The optimal y translation is : ', num2str(ty_opt)]);
+disp(['The optimal r rotation is : ', num2str(r_opt)]);
+
+figure('position', [100, 100, 600, 300]);
+
+subplot(1,2,1);imshow(Image_flair_clean),title('Original flair image (fixed)')
+subplot(1,2,2);imshow(Image_diff_opt),title('Diffusion image with optimal transformation')
+
+saveas(gcf, "../output/rigid_transformation_result.png");
 
 %% 3 - Point set registration
 
