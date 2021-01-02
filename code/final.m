@@ -110,6 +110,17 @@ subplot(1,2,2);imshow(Image_diff_opt),title('Diffusion image with optimal transf
 
 saveas(gcf, "../output/rigid_transformation_result.png");
 
+%% Display results
+C = imfuse(Image_diff_opt,Image_flair_clean,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
+
+h1=figure(1);
+imshow(C),title({'Superposition of images after optimal transformation', '(-10,10,1,-2,2,0.1,SE)'});
+set(h1,'Position',[100, 100, 500, 400])
+
+saveas(gcf, "../output/rigid_transformation_result_superposed.png");
+
+
+
 %% 3 - Point set registration
 
 %%
@@ -153,4 +164,31 @@ for tx=tmin:tstep:tmax
         end
     end
 end
-%%
+
+
+%% 5. Additional similarity metric - mutual information
+
+%% Test rigid_registration_choice_metric
+[simcrit, tx_opt, ty_opt, r_opt, Image_diff_opt] = rigid_registration_choice_metric(Image_diff_clean,Image_flair_clean, mask_diff, mask_flair);
+
+disp(['The optimal x translation is : ', num2str(tx_opt)]);
+disp(['The optimal y translation is : ', num2str(ty_opt)]);
+disp(['The optimal r rotation is : ', num2str(r_opt)]);
+
+figure('position', [100, 100, 600, 300]);
+
+subplot(1,2,1);imshow(Image_flair_clean),title('Original flair image (fixed)')
+subplot(1,2,2);imshow(Image_diff_opt),title('Diffusion image with optimal transformation')
+
+saveas(gcf, "../output/rigid_transformation_choice_metric_result.png");
+
+%% Display results
+C = imfuse(Image_diff_opt,Image_flair_clean,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
+
+h1=figure(1);
+imshow(C),title({'Superposition of images after optimal transformation', '(-10,10,1,-2,2,0.1,MI)'});
+set(h1,'Position',[100, 100, 500, 400])
+
+saveas(gcf, "../output/rigid_transformation_choice_metric_result_superposed.png");
+
+
