@@ -123,8 +123,9 @@ saveas(gcf, "../output/rigid_transformation_result_superposed.png");
 
 
 %% 3 - Point set registration
-
-nb_points=5;
+prompt = 'Entrez le nombre de points que vous allez sélectionner nb_points : ';
+nb_points=input(prompt);
+% nb_points=5; %pour l'exemple nb_points=5
 [s, tx_opt, ty_opt, r_opt, Image_diff_opt_PS] = point_set_registration(Image_diff_clean,Image_flair_clean,nb_points);
 
 disp(['The optimal x translation is : ', num2str(tx_opt)]);
