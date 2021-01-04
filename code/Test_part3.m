@@ -10,12 +10,14 @@ Im_flair = niftiread("FLAIR.nii");
 [ID, IF, mask_diff, mask_flair]=preprocess(Im_diff(:,:,8), Im_flair(:,:,8));
 [s, tx_opt, ty_opt, r_opt, Image_diff_opt] = point_set_registration(ID,IF,3);    
 
-figure;
+h1=figure();
 C = imfuse(Image_diff_opt,IF,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
-imshow(C);
-figure;
+imshow(C),title({'Superposition of images after', 'optimal transformation', '(-10,10,1,-2,2,0.1)'});
+set(h1,'Position',[100, 100, 500, 400])
+h2=figure();
 C2=imfuse(ID,IF,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
-imshow(C2);
+imshow(C2),title({'Superposition of images before', 'optimal transformation'});
+set(h2,'Position',[100, 100, 500, 400])
 
 %%
 %{

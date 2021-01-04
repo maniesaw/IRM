@@ -32,7 +32,7 @@ saveas(gcf, "../output/cleaned_images.png");
 
 
 %% 2. Rigid registration
-
+%{
 %% 2.1 First, we grayscale the images
 % The range of the cleaned images is not between 0 and 256 so we have to
 % rescale them
@@ -96,7 +96,7 @@ for tx=tmin:tstep:tmax
 end
 
 %% 2.6 Comments of  results
-
+%}
 %% Test rigid_registration function
 [simcrit, tx_opt, ty_opt, r_opt, Image_diff_opt] = rigid_registration(Image_diff_clean,Image_flair_clean, mask_diff, mask_flair);
 
@@ -114,7 +114,7 @@ saveas(gcf, "../output/rigid_transformation_result.png");
 %% Display results
 C = imfuse(Image_diff_opt,Image_flair_clean,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
 
-h1=figure(1);
+h1=figure();
 imshow(C),title({'Superposition of images after optimal transformation', '(-10,10,1,-2,2,0.1,SE)'});
 set(h1,'Position',[100, 100, 500, 400])
 
@@ -124,47 +124,22 @@ saveas(gcf, "../output/rigid_transformation_result_superposed.png");
 
 %% 3 - Point set registration
 
-%%
-clear;
-clc;
-%%
+nb_points=5;
+[s, tx_opt, ty_opt, r_opt, Image_diff_opt_PS] = point_set_registration(Image_diff_clean,Image_flair_clean,nb_points);
 
-Im_diff = niftiread("DIFFUSION.nii");
-Im_flair = niftiread("FLAIR.nii");
+disp(['The optimal x translation is : ', num2str(tx_opt)]);
+disp(['The optimal y translation is : ', num2str(ty_opt)]);
+disp(['The optimal r rotation is : ', num2str(r_opt)]);
 
-%% 
-[ID, IF, mask_diff, mask_flair]=preprocess(Im_diff(:,:,8), Im_flair(:,:,8));
-[pts_diff, pts_flair]=readPoints(ID,IF,3);
+h1=figure();
+C = imfuse(Image_diff_opt_PS,IF,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
+imshow(C),title({'Superposition of images after', 'optimal transformation', '(-10,10,1,-2,2,0.1)'});
+set(h1,'Position',[100, 100, 500, 400])
+h2=figure();
+C2=imfuse(ID,IF,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
+imshow(C2),title({'Superposition of images before', 'optimal transformation'});
+set(h2,'Position',[100, 100, 500, 400])
 
-%%
-tmin=-10;
-tmax=10;
-tstep=2;
-rmin=-1;
-rmax=1;
-rstep=0.2;
-s=0;
-L = 3;
-for i=1:L
-   s=s+(ID(round(pts_diff(1,i)),round(pts_diff(1,i)))-IF(round(pts_flair(1,i)),round(pts_flair(1,i))))^2; 
-end
-p_opt=[0 0 0];
-for tx=tmin:tstep:tmax
-    for ty=tmin:tstep:tmax
-        for r=rmin:rstep:rmax
-            ID_temp=imtranslate(ID,[tx,ty]);
-            ID_temp=imrotate(ID,r, 'crop');
-            stemp=0;
-            for i=1:L
-               stemp=stemp+(ID_temp(round(pts_diff(1,i)),round(pts_diff(1,i)))-IF(round(pts_flair(1,i)),round(pts_flair(1,i))))^2; 
-            end
-            if stemp<s
-                s=stemp;
-                p_opt=[tx ty r];
-            end
-        end
-    end
-end
 
 
 %% 5. Additional similarity metric - mutual information
