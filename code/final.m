@@ -79,11 +79,12 @@ saveas(gcf, "../output/centroids.png");
 
 %pi_opt=[0 0 0];
 s = simcrit(Image_diff_clean_gray, Image_flair_clean_gray);
+Image_diff_clean_gray_0=imtranslate(Image_diff_clean_gray,[tx0,ty0]);
 
 for tx=tmin:tstep:tmax
     for ty=tmin:tstep:tmax
         for r=rmin:rstep:rmax
-            ID_temp=imtranslate(Image_diff_clean_gray,[tx,ty]);
+            ID_temp=imtranslate(Image_diff_clean_gray_0,[tx,ty]);
             ID_temp=imrotate(ID_temp,r,'crop');
             ssimval=simcrit(ID_temp,Image_flair_clean_gray);
             if ssimval<s
