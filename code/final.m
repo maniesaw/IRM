@@ -166,6 +166,34 @@ for tx=tmin:tstep:tmax
     end
 end
 
+%% 4. Non rigid registration
+
+Image_diff_clean_gray = grayscaleIm(Image_diff_clean);
+Image_flair_clean_gray = grayscaleIm(Image_flair_clean);
+
+[optimizer,metric] = imregconfig('multimodal');
+
+moving = Image_diff_clean_gray;
+fixed = Image_flair_clean_gray;
+
+optimizer.MaximumIterations = 1000;
+Image_diff_opt = imregister(moving,fixed,'affine',optimizer,metric);
+
+imshowpair(Image_diff_opt,fixed);
+
+C = imfuse(Image_diff_opt,fixed,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
+h1=figure(1);
+imshow(C),title({'Superposition of images after optimal transformation', '(Non rigid - 1000 iterations)'});
+set(h1,'Position',[100, 100, 500, 400])
+
+saveas(gcf, "../output/non_rigid_transformation_superposed.png");
+
+figure('position', [100, 100, 600, 300]);
+
+subplot(1,2,1);imshow(fixed),title('Fixed flair image')
+subplot(1,2,2);imshow(Image_diff_opt),title('Optimal diffusion image')
+
+saveas(gcf, "../output/non_rigid_transformation_result.png");
 
 %% 5. Additional similarity metric - mutual information
 
