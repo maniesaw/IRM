@@ -3,7 +3,7 @@
 
 <h1 id="tutorial1" style="text-align: justify">Project 2: Registration of different MRI modalities</h1>
 
-<p style="text-align: justify">This project has been realised by Catalina Gonzalez Gomez, Sarah Dandou, Mélanie Savarin and Maxime Vincent as part of  the course of Image processing and analysis in INSA Lyon. </p>
+<p style="text-align: justify">This project has been realised by Catalina Gonzalez Gomez, Sarah Dandou, Mélanie Sawaryn and Maxime Vincent as part of  the course of Image processing and analysis in INSA Lyon. </p>
 </div>
 
 <div style="background-color:rgb(255, 250, 250); padding:5px; padding-left: 1em; padding-right: 1em;">
