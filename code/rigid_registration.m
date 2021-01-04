@@ -44,11 +44,12 @@ s = simcrit(Image_diff_clean_gray, Image_flair_clean_gray );
 tx_opt = 0;
 ty_opt = 0;
 r_opt = 0;
+Image_diff_clean_gray_0=imtranslate(Image_diff_clean_gray,[tx0,ty0]);
 
 for tx=tmin:tstep:tmax
     for ty=tmin:tstep:tmax
         for r=rmin:rstep:rmax
-            ID_temp=imtranslate(Image_diff_clean_gray,[tx,ty]);
+            ID_temp=imtranslate(Image_diff_clean_gray_0,[tx,ty]);
             ID_temp=imrotate(ID_temp,r,'crop');
             ssimval=simcrit(ID_temp,Image_flair_clean_gray);
             if ssimval<s
