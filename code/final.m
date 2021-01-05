@@ -144,18 +144,10 @@ set(h2,'Position',[100, 100, 500, 400])
 
 %% 4. Non rigid registration
 
-Image_diff_clean_gray = grayscaleIm(Image_diff_clean);
-Image_flair_clean_gray = grayscaleIm(Image_flair_clean);
+% Use of non-rigid function to find the optimal configuration
+[Image_diff_opt] = non_rigid_registration(Image_diff_clean,Image_flair_clean);
 
-[optimizer,metric] = imregconfig('multimodal');
-
-moving = Image_diff_clean_gray;
-fixed = Image_flair_clean_gray;
-
-optimizer.MaximumIterations = 1000;
-Image_diff_opt = imregister(moving,fixed,'affine',optimizer,metric);
-
-imshowpair(Image_diff_opt,fixed);
+fixed = grayscaleIm(Image_flair_clean);
 
 C = imfuse(Image_diff_opt,fixed,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
 h1=figure(1);
