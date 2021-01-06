@@ -14,12 +14,14 @@ Image_flair_clean_gray = grayscaleIm(Image_flair_clean);
 % The FLAIR image is the fixed image, and the Diffusion MRI is the moving
 % image to be registered.
 tx0 = x_centroid_flair - x_centroid_diff;
+tx0 = round(tx0);
 ty0 = y_centroid_flair - y_centroid_diff;
+ty0 = round(ty0);
 
 disp(['The initial x translation is : ', num2str(tx0)]);
 disp(['The initial y translation is : ', num2str(ty0)]);
 
-figure('position', [100, 100, 600, 300]);
+figure('position', [100, 100, 600, 300], 'visible', 'off');
 
 subplot(1, 2, 1);
 imshow(mask_diff, []);title("Mask Diff");
@@ -41,10 +43,15 @@ saveas(gcf, "../output/centroids.png");
 
 % 2.4 & 2.5 Implement the different transformations to apply to the moving image and store
 % the pi value that give the best translation parameters
+Image_diff_clean_gray_0=imtranslate(Image_diff_clean_gray,[tx0,ty0]);
+fprintf(max(Image_diff_clean_gray_0))
+Image_diff_clean_gray_0 = round(Image_diff_clean_gray_0);
+fprintf(max(Image_diff_clean_gray_0))
+
 if metric == 1
     
     p_opt=[0 0 0];
-    s = simcrit(Image_diff_clean_gray, Image_flair_clean_gray );
+    s = simcrit(Image_diff_clean_gray_0, Image_flair_clean_gray );
     tx_opt = 0;
     ty_opt = 0;
     r_opt = 0;
@@ -52,7 +59,7 @@ if metric == 1
     for tx=tmin:tstep:tmax
         for ty=tmin:tstep:tmax
             for r=rmin:rstep:rmax
-                ID_temp=imtranslate(Image_diff_clean_gray,[tx,ty]);
+                ID_temp=imtranslate(Image_diff_clean_gray_0,[tx,ty]);
                 ID_temp=imrotate(ID_temp,r,'crop');
                 ssimval=simcrit(ID_temp,Image_flair_clean_gray);
                 if ssimval<s
@@ -69,7 +76,7 @@ if metric == 1
 elseif metric == 2
     
     p_opt=[0 0 0];
-    s = cal_mi(Image_diff_clean_gray, Image_flair_clean_gray );
+    s = cal_mi(Image_diff_clean_gray_0, Image_flair_clean_gray );
     tx_opt = 0;
     ty_opt = 0;
     r_opt = 0;
@@ -77,7 +84,7 @@ elseif metric == 2
     for tx=tmin:tstep:tmax
         for ty=tmin:tstep:tmax
             for r=rmin:rstep:rmax
-                ID_temp=imtranslate(Image_diff_clean_gray,[tx,ty]);
+                ID_temp=imtranslate(Image_diff_clean_gray_0,[tx,ty]);
                 ID_temp=imrotate(ID_temp,r,'crop');
                 mival=cal_mi(ID_temp,Image_flair_clean_gray);
                 if mival>s
@@ -95,7 +102,7 @@ else
     disp(['Please enter 1 or 2 for the metric choice. Run again to process.']);
 end
 
-Image_diff_opt = imtranslate(Image_diff_clean_gray,[tx_opt,ty_opt]);
+Image_diff_opt = imtranslate(Image_diff_clean_gray_0,[tx_opt,ty_opt]);
 Image_diff_opt = imrotate(Image_diff_opt,r_opt,'crop');
 
 end

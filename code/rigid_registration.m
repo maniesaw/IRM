@@ -39,12 +39,13 @@ saveas(gcf, "../output/centroids.png");
 
 % 2.4 & 2.5 Implement the different transformations to apply to the moving image and store
 % the pi value that give the best trasnlation parameters
+Image_diff_clean_gray_0=imtranslate(Image_diff_clean_gray,[tx0,ty0]);
+
 p_opt=[0 0 0];
-s = simcrit(Image_diff_clean_gray, Image_flair_clean_gray );
+s = simcrit(Image_diff_clean_gray_0, Image_flair_clean_gray);
 tx_opt = 0;
 ty_opt = 0;
 r_opt = 0;
-Image_diff_clean_gray_0=imtranslate(Image_diff_clean_gray,[tx0,ty0]);
 
 for tx=tmin:tstep:tmax
     for ty=tmin:tstep:tmax
@@ -63,7 +64,7 @@ for tx=tmin:tstep:tmax
     end
 end
 
-Image_diff_opt = imtranslate(Image_diff_clean_gray,[tx_opt,ty_opt]);
+Image_diff_opt = imtranslate(Image_diff_clean_gray_0,[tx_opt,ty_opt]);
 Image_diff_opt = imrotate(Image_diff_opt,r_opt,'crop');
 
 end
